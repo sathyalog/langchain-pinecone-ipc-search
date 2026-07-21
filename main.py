@@ -5,9 +5,9 @@ from langchain_openrouter import ChatOpenRouter
 from langchain.messages import SystemMessage, AIMessage, HumanMessage
 
 load_dotenv(override=True)
-messages = [
-    SystemMessage(
-        content="""You are a precise, document-grounded AI assistant. Your sole purpose is to answer the user's question using ONLY the provided document context.
+# Base system instructions
+system_message = SystemMessage(
+    content="""You are a precise, document-grounded AI assistant. Your sole purpose is to answer the user's question using ONLY the provided document context.
 
 ### CORE GROUNDING RULES:
 1. Zero External Knowledge: You must operate ONLY on the information explicitly contained within the provided context. Do NOT use your prior knowledge, general training data, or outside assumptions.
@@ -21,15 +21,18 @@ messages = [
 
 ### CONTEXT:
 {context}"""
-    ),
-    HumanMessage(content="{input}"),
-]
+)
+
 
 model = ChatOpenRouter(model=os.environ.get("MODEL"))
 while True:
     user_input = input("you:")
     if user_input.lower() in ["quit", "exit"]:
         break
-    response = model.invoke(messages)
-    print(AIMessage(response.content))
+    messages = [system_message, HumanMessage(content=user_input)]
+    print("AI: ", end="", flush=True)
+    # Stream chunks as they arrive from the model
+    for chunk in model.stream(messages):
+        print(chunk.content, end="", flush=True)
+    print()
 
