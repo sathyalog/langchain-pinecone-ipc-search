@@ -57,7 +57,7 @@ set_llm_cache(SQLiteCache(database_path=".langchain.db"))
 
 Streaming refers to the process of delivering the response in a continuous stream of data instead of sending entire response at once.
 
-Prompt templates:
+#### Prompt templates:
 A prompt refers to the input to the model.
 
 Prompt templates are a way to create dynamic prompts for LLMs.
@@ -68,13 +68,13 @@ In Langchain there are PromptTemplates and ChatPromptTemplates.
 
 use PromptTemplate for managing your prompts with dynamic placeholders. If you are looking for more modern or specialized ways to handle prompts, consider these alternatives depending on your use case:
 
-ChatPromptTemplate: If you are working with chat-based models (which is standard for most modern applications), ChatPromptTemplate is the preferred approach. It allows you to structure prompts as a sequence of messages (system, human, ai), providing better control over message roles and context.
+**ChatPromptTemplate**: If you are working with chat-based models (which is standard for most modern applications), ChatPromptTemplate is the preferred approach. It allows you to structure prompts as a sequence of messages (system, human, ai), providing better control over message roles and context.
 
-LangChain Hub: Instead of hardcoding prompt templates in your code, you can use the LangChain Hub to store, version, and manage your prompts. You can pull them programmatically into your application, making them easier to iterate on without changing your source code.
-Runnable Interface: Ensure you are using the modern LCEL (LangChain Expression Language) syntax by piping your prompt templates into models using the | operator, rather than older chain constructors.
+**LangChain Hub**: Instead of hardcoding prompt templates in your code, you can use the LangChain Hub to store, version, and manage your prompts. You can pull them programmatically into your application, making them easier to iterate on without changing your source code.
+**Runnable Interface**: Ensure you are using the modern LCEL (LangChain Expression Language) syntax by piping your prompt templates into models using the | operator, rather than older chain constructors.
 
 LCEL (LangChain Expression Language) 
-
+```
 from langchain_core.prompts import ChatPromptTemplate
 
 # Use ChatPromptTemplate for chat-based models
@@ -85,13 +85,14 @@ prompt = ChatPromptTemplate.from_messages([
 
 # Use the pipe operator (LCEL) to create your chain
 chain = prompt | model
-
-The Runnable interface is a foundational abstraction in LangChain that provides a standardized way to define, compose, and execute components in your LLM applications.
+```
+The **Runnable interface** is a foundational abstraction in LangChain that provides a standardized way to define, compose, and execute components in your LLM applications.
 
 By implementing the Runnable interface, components (like LLMs, prompt templates, retrievers, or custom logic) get access to a consistent set of methods for execution, streaming, and batching. This standard interface is what enables LangChain Expression Language (LCEL) to work, allowing you to easily chain components together using the pipe (|) operator.
+
 Key Features of the Runnable Interface
 
-    Standard Execution Methods: Every Runnable component supports core execution methods:
+    **Standard Execution Methods** : Every Runnable component supports core execution methods:
         .invoke(): Execute the component synchronously on a single input.
         .ainvoke(): Asynchronous version of invoke.
         .batch(): Execute the component on a list of inputs in parallel.
@@ -99,14 +100,14 @@ Key Features of the Runnable Interface
         .stream(): Stream output from the component as it generates.
         .astream(): Asynchronous version of stream.
 
-    Composition (LCEL): The Runnable interface allows you to compose complex pipelines effortlessly. For example, you can pipe a PromptTemplate into an LLM and then into an OutputParser:
+    **Composition (LCEL)** : The Runnable interface allows you to compose complex pipelines effortlessly. For example, you can pipe a PromptTemplate into an LLM and then into an OutputParser:
 
     `chain = prompt_template | llm | output_parser`
 
     Configurable Behavior: You can pass a RunnableConfig (e.g., for tracing, metadata, or execution settings) to these methods to control runtime behavior across your entire chain.
 
     Extensibility: Most major components in LangChain (LLMs, chat models, prompt templates, retrievers, tools) implement this interface. If you have custom logic you need to integrate, you can easily turn it into a Runnable using decorators like @chain or by inheriting from Runnable.
-
-How to use it in your code
-
-When you build a chain, you are essentially building a RunnableSequence. Because each component in your sequence is a Runnable, the entire sequence itself becomes a Runnable, meaning it inherits all the same invoke, batch, and stream capabilities.
+Improvements made:
+    1.	Parameters dynamic injection: Pass parameters directly as a dictionary { "context": ..., "input": ... } into chain.stream().
+	2.	LangChain Expression Language (LCEL): The expression chain = prompt | model binds prompt formatting and execution into a clean, reusable pipeline.
+	3.	No manual SystemMessage / HumanMessage instantiation: ChatPromptTemplate.from_messages automatically builds the appropriate message objects under the hood based on string tuples.
