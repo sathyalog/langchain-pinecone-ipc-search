@@ -133,10 +133,10 @@ ReAct(Reasoning and Acting) - ReAct is a new approach that combines reasoning(ch
 
 Langchain Agent = Tools + Chains
 
-What is Langchain hub?
+**What is Langchain hub?**
 LangChain Hub is a centralized, community-driven platform for developers to discover, share, and version control prompt templates for Large Language Models (LLMs).
 
-## 🤖 What is a ReAct Agent?
+### 🤖 What is a ReAct Agent?
 
 A **ReAct Agent** combines **Reasoning** (thought process) and **Acting** (tool execution) to solve complex tasks dynamically. Instead of generating a direct, static answer, the LLM determines which tool to use based on the user's prompt, processes the tool's result, and decides its next action.
 
@@ -152,3 +152,82 @@ A **ReAct Agent** combines **Reasoning** (thought process) and **Acting** (tool 
    ![duckduckgo](<Screenshot 2026-07-22 at 3.39.21 PM.png>)
    * **Historical / Biographical Info:** For *"Tell me about Napoleon Bonaparte early life"*, the agent chooses **`Action: Wikipedia`**.
    ![wiki](<Screenshot 2026-07-22 at 3.39.39 PM.png>)
+
+### Embeddings
+Embeddings are the core of building LLMs applications.
+
+Text embeddings are numeric representations of text and are used in NLP and ML tasks.
+![embeddings](<Screenshot 2026-07-22 at 3.48.15 PM.png>)
+
+### Vector Databases:
+Vector databases are a new type of database, designed to store and query unstructured data.
+
+Unstructured data is data that does not have a fixed schema, such as text, images and audio.
+
+SQL vs Vector Databases
+🗄️ SQL vs. Cloud Vector Databases (Pinecone)
+Unlike local embedded stores (such as ChromaDB using SQLite files), Pinecone is a fully managed cloud vector database. It does not store data in local .sqlite files; instead, it hosts high-dimensional vector indexes across distributed cloud servers.
+•	SQL Databases (Exact Match): Uses primary keys or indexed columns to return strict values.
+
+`SELECT * FROM legal_code WHERE section_id = 378;`
+
+•	Vector Databases (Semantic Similarity + Metadata Filtering): Converts query text into a math vector and calculates geometric proximity (e.g., Cosine Similarity) to retrieve the top $K$ most semantically similar contexts. It can also combine vector search with metadata filters:
+
+```# Pinecone Vector Search Example
+query_vector = embedding_model.embed_query(
+    "What is punishment for stealing?"
+)
+
+results = index.query(
+    vector=query_vector,
+    top_k=3,  # Return 3 nearest semantic matches
+    filter={"statute": {"$eq": "IPC"}},  # Optional metadata filter
+    include_metadata=True,  # Return original text payload
+)
+```
+![vectors](e88ebbacb848b09e477d11eedf4209d10ea4ac0a-1399x537.webp)
+![vectors-in-deep](mlm-bala-vector-db-3-levels.webp)
+
+
+### 🗄️ Database Querying: SQL vs. Pinecone
+
+| Feature | Traditional SQL Database | Vector Database (Pinecone) |
+| :--- | :--- | :--- |
+| **Search Mechanism** | Exact Keyword / Key Match | Semantic Similarity (Mathematical Distance) |
+| **Storage Engine** | SQL tables / Local `.sqlite` files | Cloud-managed Serverless Vector Index |
+| **Example Query** | `SELECT * FROM ipc WHERE section = 378;` | `index.query(vector=query_emb, top_k=3, filter={"statute": "IPC"})` |
+| **Output** | Exact row match | Ranked list of nearest contextual matches with metadata |
+
+### Vector Database Pipeline
+**Load & Chunk Text** → **Generate Embeddings (Vectors)** → **Store & Index in Database** → **Query via Cosine/Vector Similarity Search**.
+
+Sign up with pinecone.io and create an index in your account. Before that lets understand what are pinecone indexes.
+
+#### Pinecone indexes:
+An index is the highest-level organisational unit of vector data in pinecone.
+
+It accepts and stores vectors, serves queries over the vectors it contains and does other vector operations over its contents.
+
+Types of indexes:
+Serverless indexes: You dont configure or manage any compute or storage resources(they scale automatically)
+
+Pod based indexes: You choose one or more preconfigured units of hardware(pods).
+
+We created index programatically and established connection with pinecone using `database.py` file.
+
+Pinecone Namespaces: Pinecone allows you to partition the vectors in an index into namespaces.
+
+Queries and other operations are scoped to a specific namesapce, allowing different request to search different subsets of your index.
+
+How this project pipeline works?
+1. Prepare the document(Once per document)
+    a) Load the data into LangChain Documents.
+    b) Split the documents into chunks.
+    c) Embed the chunks into numeric vectors.
+    d) Save the chunks and the embeddings to a vector database.
+2. Search(Once per query)
+    a)Embed the user's question.
+    b)Using the questions embedding and the chunk embeddings, rank the vectors by similarity to the questions embedding. The nearest vectors represent chunks similar to the question.
+3. Ask(Once per query)
+    a)Insert the question and the most relevant chunks into a message to a GPT model.
+    b) Return GPTs answer.

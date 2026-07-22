@@ -6,10 +6,14 @@ from langchain_community.tools import DuckDuckGoSearchRun
 import streamlit as st
 from ddgs import DDGS
 from langchain_core.tools import tool
+from database import create_index
+from pinecone import Pinecone
 
 # 1. Load Environment Variables
 load_dotenv(override=True)
-
+pc = Pinecone(api_key=os.getenv("PINECONE_API_KEY"))
+connect_database = create_index()
+print(pc.list_indexes())
 # 2. Configure Streamlit Page Layout
 st.set_page_config(
     page_title="IPC Legal AI Assistant",
