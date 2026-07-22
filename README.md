@@ -27,8 +27,14 @@ powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | ie
 
 #### 🛠️ Key Technologies Used
 • LangChain: The framework used to connect the LLM with external data and structure prompt workflows.
+
 • Pinecone: A vector database used to store and quickly search document embeddings.
+
 • OpenAI / OpenRouter: The LLM provider generating precise, grounded answers based only on retrieved text.
+
+• Streamlit: Helps this application with UI interface.
+
+
 🔍 How It Works
 1. Load Data: Indian Penal Code documents (PDFs or CSVs) are loaded into the system. For this project, we are adding IPC_186045.pdf inside assets folder for reference.
 2. Chunk & Embed: The text is split into small section chunks and converted into mathematical representations (vector embeddings).
@@ -122,3 +128,27 @@ Key Features of the Runnable Interface
 Langchain tools are specialized apps for your LLM. They are tiny code modules that allow it to access your information and services. These tools connect your LLM to search engines, databases, API's and many more.
 
 Tools like DuckDuckGo(search the web), Tavily AI, Wikipedia. 
+
+ReAct(Reasoning and Acting) - ReAct is a new approach that combines reasoning(chain-of-thoughts prompting) and acting capabilities of LLM's.
+
+Langchain Agent = Tools + Chains
+
+What is Langchain hub?
+LangChain Hub is a centralized, community-driven platform for developers to discover, share, and version control prompt templates for Large Language Models (LLMs).
+
+## 🤖 What is a ReAct Agent?
+
+A **ReAct Agent** combines **Reasoning** (thought process) and **Acting** (tool execution) to solve complex tasks dynamically. Instead of generating a direct, static answer, the LLM determines which tool to use based on the user's prompt, processes the tool's result, and decides its next action.
+
+### 🛠️ How It Works (Based on Code & Execution)
+
+1. **Tool Definition:** The agent is configured with access to specialized tools:
+   `tools = [python_repl_tool, wikipedia_tool, duckduckgo_tool]`
+![code](<Screenshot 2026-07-22 at 3.38.30 PM.png>)
+2. **Dynamic Tool Selection:** Based on the input question, the agent reasons about which tool is best suited:
+   * **Math / Code Request:** For *"Generate the first 20 numbers in the Fibonacci series"*, the agent reasons that it should write a Python program and selects **`Action: Python REPL`**.
+   ![REPL](<Screenshot 2026-07-22 at 3.38.46 PM.png>)
+   * **Real-time / Current Info:** For *"Who is the current prime minister of the UK?"*, the agent recognizes it needs live web data and selects **`Action: DuckDuckGo Search`**.
+   ![duckduckgo](<Screenshot 2026-07-22 at 3.39.21 PM.png>)
+   * **Historical / Biographical Info:** For *"Tell me about Napoleon Bonaparte early life"*, the agent chooses **`Action: Wikipedia`**.
+   ![wiki](<Screenshot 2026-07-22 at 3.39.39 PM.png>)
