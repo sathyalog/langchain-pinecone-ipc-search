@@ -48,12 +48,14 @@ Caching - caching is the practice of storing frequently accessed data or results
 
 Caching optimizes interactions with LLMs by reducing API calls and speeding up applications, resulting in a more efficient user experience.
 
-InMemoryCache and SQLite Caching are 2 common methods to cache the inputs.
+**InMemoryCache** and **SQLite Caching** are 2 common methods to cache the inputs.
 Syntax would be like:
+```
 from langchain_core.caches import InMemoryCache
 from langchain_core.caches import SQLiteCache
 set_llm_cache(InMemoryCache())
 set_llm_cache(SQLiteCache(database_path=".langchain.db"))
+```
 
 Streaming refers to the process of delivering the response in a continuous stream of data instead of sending entire response at once.
 
@@ -107,7 +109,13 @@ Key Features of the Runnable Interface
     Configurable Behavior: You can pass a RunnableConfig (e.g., for tracing, metadata, or execution settings) to these methods to control runtime behavior across your entire chain.
 
     Extensibility: Most major components in LangChain (LLMs, chat models, prompt templates, retrievers, tools) implement this interface. If you have custom logic you need to integrate, you can easily turn it into a Runnable using decorators like @chain or by inheriting from Runnable.
-Improvements made:
+
+**Improvements made:**
     1.	Parameters dynamic injection: Pass parameters directly as a dictionary { "context": ..., "input": ... } into chain.stream().
 	2.	LangChain Expression Language (LCEL): The expression chain = prompt | model binds prompt formatting and execution into a clean, reusable pipeline.
 	3.	No manual SystemMessage / HumanMessage instantiation: ChatPromptTemplate.from_messages automatically builds the appropriate message objects under the hood based on string tuples.
+
+### Langchain tools
+Langchain tools are specialized apps for your LLM. They are tiny code modules that allow it to access your information and services. These tools connect your LLM to search engines, databases, API's and many more.
+
+Tools like DuckDuckGo(search the web), Tavily AI, Wikipedia. 
