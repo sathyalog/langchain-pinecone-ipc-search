@@ -22,6 +22,9 @@ powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | ie
 #### Sync environment
 `uv sync`
 
+#### How to run the project?
+`uv run streamlit run main.py`
+
 #### 🛠️ Key Technologies Used
 • LangChain: The framework used to connect the LLM with external data and structure prompt workflows.
 • Pinecone: A vector database used to store and quickly search document embeddings.

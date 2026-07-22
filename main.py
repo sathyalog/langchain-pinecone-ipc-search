@@ -2,7 +2,10 @@ import os
 from dotenv import load_dotenv
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_openrouter import ChatOpenRouter
+from langchain_community.tools import DuckDuckGoSearchRun
 import streamlit as st
+from ddgs import DDGS
+from langchain_core.tools import tool
 
 # 1. Load Environment Variables
 load_dotenv(override=True)
@@ -57,14 +60,28 @@ for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
 
-with st.sidebar:
-    duckduckgo_search = st.text_input(
-        "Search widget",
-        "Do a web search here",
-        key="placeholder",
-    )
+# Initialize DuckDuckGo tool
+search_tool = DuckDuckGoSearchRun()
 
-    search_results = st.text("Search results are here")
+with st.sidebar:
+    st.header("🔍 Quick web search(not IPC)")
+    with st.form("sidebar_search_form"):
+        duckduckgo_search = st.text_input(
+            "Search widget",
+            key="placeholder",
+        )
+        search_submitted = st.form_submit_button("Search Web")
+    # Perform search and render results
+    if search_submitted and duckduckgo_search.strip():
+        with st.spinner("Searching..."):
+            try:
+                # Execute DuckDuckGo query via LangChain
+                results = search_tool.invoke(duckduckgo_search)
+                search_results = st.text(
+                    results
+                )
+            except Exception as e:
+                st.error(f"Search failed: {e}")
 
 # Helper Generator Function for Streamlit Streaming
 def generate_response(user_input):
