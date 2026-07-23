@@ -22,8 +22,8 @@ Cross-verify the AI response and page citations against the original PDF source 
 
 #### 3. DuckDuckGo Web Search Integration
 A secondary search tool is embedded in the sidebar for general web queries outside the IPC PDF context:
+![final RAG](<Screenshot 2026-07-23 at 5.35.29 PM.png>)
 
-![duckduckgo](<Screenshot 2026-07-22 at 3.39.21 PM.png>)
 
 ---
 
