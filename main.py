@@ -10,6 +10,7 @@ from database import create_index
 from pinecone import Pinecone
 from document_loading import load_document
 from chunking import chunk_data
+from embeddings import insert_or_fetch_embeddings
 
 # 1. Load Environment Variables
 load_dotenv(override=True)
@@ -72,7 +73,7 @@ for message in st.session_state.messages:
 search_tool = DuckDuckGoSearchRun()
 
 with st.sidebar:
-    st.header("🔍 Quick web search(not IPC)")
+    st.header("🔍 Quick DuckDuckGo web search(not IPC)")
     with st.form("sidebar_search_form"):
         duckduckgo_search = st.text_input(
             "Search widget",
@@ -93,21 +94,44 @@ with st.sidebar:
 
     st.header("Upload the IPC_186045 document")
     file = "assets/IPC_186045.pdf"
-    if st.button("Upload Document"):
-        with st.spinner("Loading document..."):
-            st.session_state.documents = load_document(file)
-            st.success("Document uploaded successfully!")
-            #st.error("Document upload failed!")
-    if st.session_state.documents:
-    # Get total loaded pages
-        total_pages = len(st.session_state.documents)
-        st.text(f"Total pages: {total_pages}")
-        chunks = chunk_data(st.session_state.documents)
-        st.session_state.chunks = chunks
-        st.text(f"Total chunks: {len(st.session_state.chunks)}")
+    if st.button("Upload & Index Document"):
+        with st.spinner("Loading & indexing document into pinecone..."):
+            try:
+                st.session_state.documents = load_document(file)
+                st.success("Document uploaded successfully!")
+                #st.error("Document upload failed!")
+                if st.session_state.documents:
+            # Get total loaded pages
+                    total_pages = len(st.session_state.documents)
+                    st.text(f"Total pages: {total_pages}")
+                    chunks = chunk_data(st.session_state.documents)
+                    st.session_state.chunks = chunks
+                    st.text(f"Total chunks: {len(st.session_state.chunks)}")
+                    # Send chunks to embedding.py to upsert vectors in Pinecone
+                    vector_store = insert_or_fetch_embeddings(chunks)
+                    st.session_state.vector_store = vector_store
+                    st.success(f"Indexed {len(chunks)} chunks into Pinecone!")
+                else:
+                    st.error("No documents loaded.")
+            except Exception as e:
+                st.error(f"Failed to process document: {e}")
 # Helper Generator Function for Streamlit Streaming
 def generate_response(user_input):
-    stream = chain.stream({"context": retrieved_context, "input": user_input})
+     # Ensure vector store is initialized
+    if st.session_state.get("vector_store") is None:
+        st.session_state.vector_store = insert_or_fetch_embeddings()
+
+    # Retrieve top matching chunks from Pinecone
+    context_text = ""
+    if st.session_state.vector_store:
+        retriever = st.session_state.vector_store.as_retriever(
+            search_kwargs={"k": 3}
+        )
+        docs = retriever.invoke(user_input)
+        context_text = "\n\n".join([doc.page_content for doc in docs])
+
+    # Stream response from model
+    stream = chain.stream({"context": context_text, "input": user_input})
     for chunk in stream:
         yield chunk.content
 

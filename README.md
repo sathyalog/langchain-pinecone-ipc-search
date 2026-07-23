@@ -153,6 +153,8 @@ A **ReAct Agent** combines **Reasoning** (thought process) and **Acting** (tool 
    * **Historical / Biographical Info:** For *"Tell me about Napoleon Bonaparte early life"*, the agent chooses **`Action: Wikipedia`**.
    ![wiki](<Screenshot 2026-07-22 at 3.39.39 PM.png>)
 
+We implemented DuckDuckGo Search in this project where you can see in sidebar to search anything in web using DuckDuckGo.
+
 ### Embeddings
 Embeddings are the core of building LLMs applications.
 
@@ -240,3 +242,18 @@ In this exercise, lets upload the IPC_186045 pdf file into our project session t
 Chunking is the process of breaking down large pieces of text into smaller segments.
 We retrieved the uploaded document from session and break into chunks as shown in screen(total chunks in sidebar).
 ![chunks](<Screenshot 2026-07-23 at 11.41.26 AM.png>)
+
+Difference between create_index() and create_index_for_model()
+Feature	Standard pc.create_index(...)	Integrated pc.create_index_for_model(...)
+Embedding Generation	Client-side: You must generate vector embeddings manually in Python (e.g., via LangChain/OpenAI) before uploading.	Server-side (Pinecone): You send raw text directly, and Pinecone automatically generates embeddings using hosted models (e.g., llama-text-embed-v2).
+Index Setup	Requires manually specifying parameters like dimension and metric.	Auto-configures dimension and metric based on the selected embedding model.
+Upsert Data	Requires vectors: index.upsert(vectors=[{"id": "1", "values": [0.1, 0.2, ...]}]).	Accepts raw text records: index.upsert_records(records=[{"id": "1", "chunk_text": "sample text"}]).
+Querying	Requires vector query: index.query(vector=[0.1, 0.2, ...]).	Accepts text query directly: index.search_records(query={"inputs": {"text": "query text"}}).
+
+Which one should you choose?
+•	Use create_index_for_model: If you want a simplified architecture where Pinecone manages the embedding models internally, eliminating the need to make separate API calls to convert text into vectors.
+•	Use standard create_index: If you are using standard LangChain vector store wrappers (PineconeVectorStore) or custom fine-tuned embedding models that Pinecone doesn't host directly.
+
+In our project, we are using langchain and hence going with **create_index** to upsert chunks into pinecone indexes.
+
+![indexes](<Screenshot 2026-07-23 at 2.57.29 PM.png>)
