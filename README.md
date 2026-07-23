@@ -231,3 +231,7 @@ How this project pipeline works?
 3. Ask(Once per query)
     a)Insert the question and the most relevant chunks into a message to a GPT model.
     b) Return GPTs answer.
+
+### Uploading a document using DoclingLoader
+In this exercise, lets upload the IPC_186045 pdf file into our project session temporarily, so next we can do embedding and uploading to vector database later. We are doing this uploading inside sidebar component.
+![upload](<Screenshot 2026-07-23 at 10.53.30 AM.png>)

@@ -8,6 +8,7 @@ from ddgs import DDGS
 from langchain_core.tools import tool
 from database import create_index
 from pinecone import Pinecone
+from document_loading import load_document
 
 # 1. Load Environment Variables
 load_dotenv(override=True)
@@ -23,6 +24,8 @@ st.set_page_config(
 )
 
 st.title("⚖️ Indian Penal Code (IPC) AI Assistant")
+if "documents" not in st.session_state:
+    st.session_state.documents = None
 st.caption(
     "Query Indian Penal Code sections and offenses with document-grounded answers."
 )
@@ -87,6 +90,17 @@ with st.sidebar:
             except Exception as e:
                 st.error(f"Search failed: {e}")
 
+    st.header("Upload the IPC_186045 document")
+    file = "assets/IPC_186045.pdf"
+    if st.button("Upload Document"):
+        with st.spinner("Loading document..."):
+            st.session_state.documents = load_document(file)
+            st.success("Document uploaded successfully!")
+            #st.error("Document upload failed!")
+    if st.session_state.documents:
+    # Get total loaded pages
+        total_pages = len(st.session_state.documents)
+        st.text(f"Total pages: {total_pages}")
 # Helper Generator Function for Streamlit Streaming
 def generate_response(user_input):
     stream = chain.stream({"context": retrieved_context, "input": user_input})
