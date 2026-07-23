@@ -235,3 +235,8 @@ How this project pipeline works?
 ### Uploading a document using DoclingLoader
 In this exercise, lets upload the IPC_186045 pdf file into our project session temporarily, so next we can do embedding and uploading to vector database later. We are doing this uploading inside sidebar component.
 ![upload](<Screenshot 2026-07-23 at 10.53.30 AM.png>)
+
+### Chunking
+Chunking is the process of breaking down large pieces of text into smaller segments.
+We retrieved the uploaded document from session and break into chunks as shown in screen(total chunks in sidebar).
+![chunks](<Screenshot 2026-07-23 at 11.41.26 AM.png>)

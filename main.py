@@ -9,6 +9,7 @@ from langchain_core.tools import tool
 from database import create_index
 from pinecone import Pinecone
 from document_loading import load_document
+from chunking import chunk_data
 
 # 1. Load Environment Variables
 load_dotenv(override=True)
@@ -101,6 +102,9 @@ with st.sidebar:
     # Get total loaded pages
         total_pages = len(st.session_state.documents)
         st.text(f"Total pages: {total_pages}")
+        chunks = chunk_data(st.session_state.documents)
+        st.session_state.chunks = chunks
+        st.text(f"Total chunks: {len(st.session_state.chunks)}")
 # Helper Generator Function for Streamlit Streaming
 def generate_response(user_input):
     stream = chain.stream({"context": retrieved_context, "input": user_input})
